@@ -28,19 +28,23 @@ async def incoming_gen_link(bot, message):
     outstr = base64.urlsafe_b64encode(string.encode("ascii")).decode().strip("=")
     user_id = message.from_user.id
     user = await get_user(user_id)
+    
     if WEBSITE_URL_MODE == True:
         share_link = f"{WEBSITE_URL}?Tech_VJ={outstr}"
     else:
         share_link = f"https://t.me/{username}?start={outstr}"
+    
+    # Short link logic
     if user["base_site"] and user["shortener_api"] != None:
         short_link = await get_short_link(user, share_link)
         await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🖇️ sʜᴏʀᴛ ʟɪɴᴋ :- {short_link}</b>")
     else:
         await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🔗 ᴏʀɪɢɪɴᴀʟ ʟɪɴᴋ :- {share_link}</b>")
 
-
-
-pre, decode_file_id = ((base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))).decode("ascii")).split("_", 1)
+    # File processing logic
+    pre, decode_file_id = ((base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))).decode("ascii")).split("_", 1)
+    
+    # Verification check
     if not await check_verification(client, message.from_user.id) and VERIFY_MODE == True:
         btn = [[
             InlineKeyboardButton("Verify", url=await get_token(client, message.from_user.id, f"https://telegram.me/{username}?start="))
@@ -53,18 +57,23 @@ pre, decode_file_id = ((base64.urlsafe_b64decode(data + "=" * (-len(data) % 4)))
             reply_markup=InlineKeyboardMarkup(btn)
         )
         return
+    
     try:
         msg = await client.get_messages(LOG_CHANNEL, int(decode_file_id))
         if msg.media:
             media = getattr(msg, msg.media.value)
             title = formate_file_name(media.file_name)
-            size=get_size(media.file_size)
+            size = get_size(media.file_size)
             f_caption = f"<code>{title}</code>"
+            
+            # Custom caption handling
             if CUSTOM_FILE_CAPTION:
                 try:
-                    f_caption=CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='')
+                    f_caption = CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='')
                 except:
                     return
+            
+            # Stream link buttons
             if STREAM_MODE == True:
                 if msg.video or msg.document:
                     log_msg = msg
@@ -77,22 +86,28 @@ pre, decode_file_id = ((base64.urlsafe_b64decode(data + "=" * (-len(data) % 4)))
                     ],[
                         InlineKeyboardButton("• ᴡᴀᴛᴄʜ ɪɴ ᴡᴇʙ ᴀᴘᴘ •", web_app=WebAppInfo(url=stream))
                     ]]
-                    reply_markup=InlineKeyboardMarkup(button)
+                    reply_markup = InlineKeyboardMarkup(button)
             else:
                 reply_markup = None
+            
+            # Send the file with caption and reply markup
             del_msg = await msg.copy(chat_id=message.from_user.id, caption=f_caption, reply_markup=reply_markup, protect_content=False)
+        
         else:
             del_msg = await msg.copy(chat_id=message.from_user.id, protect_content=False)
+        
+        # Auto delete logic
         if AUTO_DELETE_MODE == True:
             k = await client.send_message(chat_id = message.from_user.id, text=f"<b><u>❗️❗️❗️IMPORTANT❗️️❗️❗️</u></b>\n\nThis Movie File/Video will be deleted in <b><u>{AUTO_DELETE} minutes</u> 🫥 <i></b>(Due to Copyright Issues)</i>.\n\n<b><i>Please forward this File/Video to your Saved Messages and Start Download there</b>")
             await asyncio.sleep(AUTO_DELETE_TIME)
             try:
-                await del_msg.delete()
+                await del_msg.delete()  # Delete the sent message after a delay
             except:
                 pass
             await k.edit_text("<b>Your File/Video is successfully deleted!!!</b>")
         return
-    except:
+    
+    except Exception as e:
         pass
 
 
