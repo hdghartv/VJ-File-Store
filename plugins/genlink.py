@@ -40,16 +40,10 @@ async def incoming_gen_link(bot, message):
         await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🔗 ᴏʀɪɢɪɴᴀʟ ʟɪɴᴋ :- {share_link}</b>")
     
   
-    # Create an inline button to trigger the /start command
-    btn = InlineKeyboardMarkup(
-        [[InlineKeyboardButton("Click here to Start", url=f"https://t.me/{username}?start={outstr}")]]
-    )
-
-    # Send the message with the inline button
-    await message.reply(
-        "Click the button below to start the process:",
-        reply_markup=btn
-    )
+    # Directly call start_command
+    fake_message = message
+    fake_message.text = f"/start {outstr}"  # Set the text to the /start command
+    await start_command(bot, fake_message)  # Directly call the start command
 
 
 
