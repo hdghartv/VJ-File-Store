@@ -45,9 +45,10 @@ async def incoming_gen_link(bot, message):
     if user["base_site"] and user["shortener_api"] != None:
         short_link = await get_short_link(user, share_link)
         await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🖇️ sʜᴏʀᴛ ʟɪɴᴋ :- {short_link}</b>")
+        await asyncio.sleep(1)
     else:
         await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🔗 ᴏʀɪɢɪɴᴀʟ ʟɪɴᴋ :- {share_link}</b>")
-        
+        await asyncio.sleep(1)
 
 @Client.on_message(filters.command(['link']) & filters.create(allowed))
 async def gen_link_s(bot, message):
