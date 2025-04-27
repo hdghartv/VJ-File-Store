@@ -39,11 +39,17 @@ async def incoming_gen_link(bot, message):
     else:
         await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🔗 ᴏʀɪɢɪɴᴀʟ ʟɪɴᴋ :- {share_link}</b>")
     
-    # 🤖 Start Command ko sidha call karo bina dusra reply kiye
-    # Copy message aur uska text set kar do
-    new_message = message
-    new_message.text = f"/start {outstr}"
-    await start_command(bot, new_message)
+  
+    # Create an inline button to trigger the /start command
+    btn = InlineKeyboardMarkup(
+        [[InlineKeyboardButton("Click here to Start", url=f"https://t.me/{username}?start={outstr}")]]
+    )
+
+    # Send the message with the inline button
+    await message.reply(
+        "Click the button below to start the process:",
+        reply_markup=btn
+    )
 
 
 
