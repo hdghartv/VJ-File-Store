@@ -32,23 +32,19 @@ async def incoming_gen_link(bot, message):
         share_link = f"{WEBSITE_URL}?Tech_VJ={outstr}"
     else:
         share_link = f"https://t.me/{username}?start={outstr}"
-    
+
     if user["base_site"] and user["shortener_api"] is not None:
         short_link = await get_short_link(user, share_link)
-        await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀn ʟɪɴᴋ:\n\n🖇️ sʜᴏʀᴛ ʟɪɴᴋ :- {short_link}</b>")
-        
-        # fake start trigger
-        fake_message = message
-        fake_message.text = f"/start {outstr}"
-        await start_command(bot, fake_message)
-
+        await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🖇️ sʜᴏʀᴛ ʟɪɴᴋ :- {short_link}</b>")
     else:
-        await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀs ʟɪɴᴋ:\n\n🔗 ᴏʀɪɢɪɴᴀʟ ʟɪɴᴋ :- {share_link}</b>")
+        await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🔗 ᴏʀɪɢɪɴᴀʟ ʟɪɴᴋ :- {share_link}</b>")
+    
+    # 🤖 Start Command ko sidha call karo bina dusra reply kiye
+    # Copy message aur uska text set kar do
+    new_message = message
+    new_message.text = f"/start {outstr}"
+    await start_command(bot, new_message)
 
-        # fake start trigger
-        fake_message = message
-        fake_message.text = f"/start {outstr}"
-        await start_command(bot, fake_message)
 
 
 @Client.on_message(filters.command(['link']) & filters.create(allowed))
