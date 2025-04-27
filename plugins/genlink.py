@@ -38,7 +38,31 @@ async def incoming_gen_link(bot, message):
     else:
         await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🔗 ᴏʀɪɢɪɴᴀʟ ʟɪɴᴋ :- {share_link}</b>")
 
+# Auto-trigger the streaming logic if STREAM_MODE is enabled
+if STREAM_MODE == True:
+    if info.video or info.document:
+        log_msg = info
+        fileName = {quote_plus(get_name(log_msg))}
+        stream = f"{URL}watch/{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
+        download = f"{URL}{get_hash(log_msg)}{str(log_msg.id)}"
+        button = [
+            [InlineKeyboardButton("• ᴅᴏᴡɴʟᴏᴀᴅ •", url=download),
+             InlineKeyboardButton('• ᴡᴀᴛᴄʜ •', url=stream)],
+            [InlineKeyboardButton("• ᴡᴀᴛᴄʜ ɪɴ ᴡᴇʙ ᴀᴘᴘ •", web_app=WebAppInfo(url=stream))]
+        ]
+        reply_markup = InlineKeyboardMarkup(button)
+    else:
+        reply_markup = None
 
+    # Try to send the media message with the buttons
+    try:
+        msg = await info.copy(chat_id=message.from_user.id, caption=f_caption, protect_content=False, reply_markup=reply_markup)
+    except FloodWait as e:
+        await asyncio.sleep(e.value)
+        msg = await info.copy(chat_id=message.from_user.id, caption=f_caption, protect_content=False, reply_markup=reply_markup)
+    except Exception as e:
+        # Handle other exceptions gracefully
+        continue
 
 @Client.on_message(filters.command(['link']) & filters.create(allowed))
 async def gen_link_s(bot, message):
